@@ -36,7 +36,7 @@ int main() {
         Maze* maze = new Maze(maxRow, maxCol);
         maze->makeMaze();
         uint64_t  mazeMakeEndTime = get_absolute_time()._private_us_since_boot;
-        maze->printMaze();
+        //maze->printMaze();
         std::cout<<"Created a new maze in            " << (float )(mazeMakeEndTime - mazeMakeStartTime) / ABSOLUTE_TIME_BASE << " sec."<<std::endl;
 
         gpio_put(LED_PIN, false);
