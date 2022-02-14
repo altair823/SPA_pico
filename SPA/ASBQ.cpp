@@ -4,14 +4,17 @@
 
 #include "ASBQ.h"
 
-ASBQ::ASBQ(int maxRow, int maxCol, Maze &maze)
+ASBQ::ASBQ(unsigned short maxRow, unsigned short maxCol, Maze &maze)
             : maze(maze),
             maxRow(maxRow),
             maxCol(maxCol),
-            adjacentLocQueue(new BucketQueue<int, Location>(maxRow, maxCol, (WEIGHT_MAX + WEIGHT_MIN) / 2)) {
-    distTable = new int*[maxCol];
-    for (int i = 0; i < maxCol; i++){
-        distTable[i] = new int[maxRow];
+            adjacentLocQueue(new BucketQueue<short, Location>(maxRow, maxCol, (WEIGHT_MAX + WEIGHT_MIN) / 2)) {
+    distTable = new short*[maxCol];
+    for (int column = 0; column < maxCol; column++){
+        distTable[column] = new short[maxRow];
+        for (int row = 0; row < maxRow; row++){
+            distTable[column][row] = INF;
+        }
     }
 }
 
@@ -26,6 +29,7 @@ ASBQ::~ASBQ() {
 void ASBQ::UpdateDist(Location *currentLoc) {
     for (int dir = 0; dir < 4; ++dir) {
         Location* adjacent = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
+
         // If there is adjacent location exists,
         // and its new distance is shorter then distance in the table, update it.
         if (adjacent != nullptr &&
@@ -33,23 +37,21 @@ void ASBQ::UpdateDist(Location *currentLoc) {
             currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row]) {
 
             distTable[adjacent->col][adjacent->row] =
-                    currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row];
-
+                    (short )(currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row]);
 
             // Enqueue the new adjacent location which is updated just before.
             adjacentLocQueue->Insert(
-                    distTable[adjacent->col][adjacent->row] +
-                    ((std::abs(end->row - adjacent->row)) * (WEIGHT_MAX + WEIGHT_MIN) / 2) +
-                    ((std::abs(end->col - adjacent->col)) * (WEIGHT_MAX + WEIGHT_MIN) / 2),
-                    adjacent);
+                    (short )(distTable[adjacent->col][adjacent->row] +
+                    (ABS_MIN_WEIGHT(end, adjacent)) +
+                    (ABS_MIN_WEIGHT(end, adjacent))),
+                    *adjacent);
 
-        std::cout<<"11"<<std::endl;
             if (maxWeight < distTable[adjacent->col][adjacent->row] +
-            ((std::abs(end->row - adjacent->row)) * (WEIGHT_MAX + WEIGHT_MIN) / 2) +
-            ((std::abs(end->col - adjacent->col)) * (WEIGHT_MAX + WEIGHT_MIN) / 2)){
-                maxWeight = distTable[adjacent->col][adjacent->row] +
-                        ((std::abs(end->row - adjacent->row)) * (WEIGHT_MAX + WEIGHT_MIN) / 2) +
-                        ((std::abs(end->col - adjacent->col)) * (WEIGHT_MAX + WEIGHT_MIN) / 2);
+            (ABS_MIN_WEIGHT(end, adjacent)) +
+            (ABS_MIN_WEIGHT(end, adjacent))){
+                maxWeight = (short )(distTable[adjacent->col][adjacent->row] +
+                        (ABS_MIN_WEIGHT(end, adjacent)) +
+                        (ABS_MIN_WEIGHT(end, adjacent)));
             }
         }
     }
@@ -60,10 +62,10 @@ void ASBQ::findSP() {
     distTable[start->col][start->row] = 0;
 
     // Initially push the starting point to PQ.
-    adjacentLocQueue->Insert(distTable[start->col][start->row] +
-    ((std::abs(end->row - start->row)) * (WEIGHT_MAX + WEIGHT_MIN) / 2) +
-    ((std::abs(end->col - start->col)) * (WEIGHT_MAX + WEIGHT_MIN) / 2),
-    start);
+    adjacentLocQueue->Insert((short )(distTable[start->col][start->row] +
+    (ABS_MIN_WEIGHT(end, start)) +
+    (ABS_MIN_WEIGHT(end, start))),
+    *start);
 
     Location* currentLoc = start;
 
@@ -71,14 +73,11 @@ void ASBQ::findSP() {
 
         // Dequeue the closest location.
         // The distance of location from the starting point is used for only sorting.
-        int currentDist = adjacentLocQueue->getMinimumKey();
         currentLoc = adjacentLocQueue->PopMinimum();
-        std::cout << "curLoc: " << currentLoc->row << ", " << currentLoc->col << std::endl;
 
         // Update distance table for adjacent locations.
         UpdateDist(currentLoc);
     }
-    std::cout << "distLoc: " << currentLoc->row << ", " << currentLoc->col << std::endl;
 }
 
 void ASBQ::printLocationDistSet() const {

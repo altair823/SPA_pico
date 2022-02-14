@@ -11,10 +11,10 @@
 class SPA {
 
     // Set starting point.
-    virtual void setStart(int row, int column) = 0;
+    virtual void setStart(unsigned short row, unsigned short column) = 0;
 
     // Set ending point.
-    virtual void setEnd(int row, int column) = 0;
+    virtual void setEnd(unsigned short row, unsigned short column) = 0;
 
     // Find the shortest path.
     virtual void findSP() = 0;

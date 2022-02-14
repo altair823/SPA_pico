@@ -4,10 +4,10 @@
 
 #include "ASPQ.h"
 
-ASPQ::ASPQ(int maxRow, int maxCol, Maze &maze) : maze(maze), maxRow(maxRow), maxCol(maxCol) {
-    distTable = new int*[maxCol];
+ASPQ::ASPQ(unsigned short maxRow, unsigned short maxCol, Maze &maze) : maze(maze), maxRow(maxRow), maxCol(maxCol) {
+    distTable = new short*[maxCol];
     for (int column = 0; column < maxCol; column++) {
-        distTable[column] = new int[maxRow];
+        distTable[column] = new short[maxRow];
         for (int row = 0; row < maxRow; row++) {
             distTable[column][row] = INF;
         }
@@ -49,8 +49,8 @@ void ASPQ::findSP() {
 
     // Initially push the starting point to PQ.
     adjacentLocQueue.push({-(distTable[start->col][start->row] +
-    ((std::abs(end->row - start->row)) * (WEIGHT_MAX + WEIGHT_MIN) / 2) +
-    ((std::abs(end->col - start->col)) * (WEIGHT_MAX + WEIGHT_MIN) / 2)),
+                             (ABS_MIN_WEIGHT(end, start)) +
+                             (ABS_MIN_WEIGHT(end, start))),
                            start});
 
     Location *currentLoc = nullptr;
@@ -69,25 +69,20 @@ void ASPQ::findSP() {
 
 void ASPQ::UpdateDist(Location *currentLoc) {
     for (int dir = 0; dir < 4; ++dir) {
-        Location* adjacent = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
-        if (adjacent != nullptr) {
+        Location *adjacent = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
+        if (adjacent != nullptr &&
+        distTable[adjacent->col][adjacent->row] >
+        currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row]) {
 
-            // If there is adjacent location exists,
-            // and its new distance is shorter than distance in the table, update it.
-            if (distTable[adjacent->col][adjacent->row] >
-                currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row]) {
+            distTable[adjacent->col][adjacent->row] =
+                     (short )(currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row]);
 
-                distTable[adjacent->col][adjacent->row] =
-                        currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row];
-
-
-                // Enqueue the new adjacent location which is updated just before.
-                adjacentLocQueue.push(
-                        {-(distTable[adjacent->col][adjacent->row] +
-                           ((std::abs(end->row - adjacent->row)) * (WEIGHT_MAX + WEIGHT_MIN) / 2) +
-                           ((std::abs(end->col - adjacent->col)) * (WEIGHT_MAX + WEIGHT_MIN) / 2)),
-                         adjacent});
-            }
+            // Enqueue the new adjacent location which is updated just before.
+            adjacentLocQueue.push(
+                    {-(distTable[adjacent->col][adjacent->row] +
+                       (ABS_MIN_WEIGHT(end, adjacent)) +
+                       (ABS_MIN_WEIGHT(end, adjacent))),
+                     adjacent});
         }
     }
 }

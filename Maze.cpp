@@ -4,7 +4,7 @@
 
 #include "Maze.h"
 
-Maze::Maze(int maxRow, int maxCol) {
+Maze::Maze(unsigned short maxRow, unsigned short maxCol) {
     this->maxRow = maxRow;
     this->maxColumn = maxCol;
     location = new Location *[maxCol];
@@ -22,8 +22,8 @@ Maze::Maze(int maxRow, int maxCol) {
     }
 
     previouslyAssignedSetNumber = 0;
-    locationSet = new int[maxRow];
-    nextLocationSet = new int[maxRow];
+    locationSet = new unsigned short[maxRow];
+    nextLocationSet = new unsigned short[maxRow];
     seed_random_from_rosc();
 }
 
@@ -36,7 +36,7 @@ Maze::~Maze() {
     delete nextLocationSet;
 }
 
-void Maze::openWall(int row, int column, int direction, int weight) {
+void Maze::openWall(unsigned short row, unsigned short column, char direction, short weight) {
     if ((row == 0 && direction == LEFT) ||
         (row == maxRow - 1 && direction == RIGHT) ||
         (column == 0 && direction == UP) ||
@@ -67,7 +67,7 @@ void Maze::openWall(int row, int column, int direction, int weight) {
     }
 }
 
-void Maze::mergeRandomly(int column) {
+void Maze::mergeRandomly(unsigned short column) {
     for (int row = 0; row < this->maxRow; ++row) {
         if (choiceRandomly()) {
             this->mergeWithRight(row, column);
@@ -83,7 +83,7 @@ bool Maze::choiceRandomly() {
     }
 }
 
-void Maze::mergeWithRight(int row, int column) {
+void Maze::mergeWithRight(unsigned short row, unsigned short column) {
     // If the right side cell doesn't exist, do nothing.
     if (row + 1 >= maxRow) {
         return;
@@ -96,7 +96,7 @@ void Maze::mergeWithRight(int row, int column) {
     this->openWall(row, column, RIGHT, generateWeight());
 }
 
-void Maze::updateSet(int targetSetRow, int destSetRow) {
+void Maze::updateSet(unsigned short targetSetRow, unsigned short destSetRow) {
     int targetSetValue = locationSet[targetSetRow];
     int destSetValue = locationSet[destSetRow];
     for (int row = targetSetRow - 1; row < maxRow; row++) {
@@ -106,22 +106,22 @@ void Maze::updateSet(int targetSetRow, int destSetRow) {
     }
 }
 
-int Maze::generateWeight() {
-    int weight;
+short Maze::generateWeight() {
+    short weight;
     // The Maximum weight is below (mean*2)
     do {
-        weight = getRandNum(WEIGHT_MIN, WEIGHT_MAX);
+        weight = (short )getRandNum(WEIGHT_MIN, WEIGHT_MAX);
     } while (weight <= WEIGHT_MIN || weight >= WEIGHT_MAX);
     return weight;
 }
 
-void Maze::expandSetsVertical(int column) {
+void Maze::expandSetsVertical(unsigned short column) {
     existingSet.clear();
-    int SetStart = 0;
-    int SetEnd = 0;
+    unsigned short SetStart = 0;
+    unsigned short SetEnd = 0;
     int currentSet = 0;
     while (true) {
-        for (int row = SetStart; row < maxRow; ++row) {
+        for (unsigned short row = SetStart; row < maxRow; ++row) {
             // If new set is detected,
             if (locationSet[row] != 0 && currentSet == 0){
                 // set start point
@@ -149,9 +149,9 @@ void Maze::expandSetsVertical(int column) {
 
         // For every count of vertical expanding,
         //int expandCount = expandCountGen(gen);
-        int expandCount = getRandNum(1, SetEnd - SetStart + 1);
+        int expandCount = getRandNum(1, (short )(SetEnd - SetStart + 1));
         for (; expandCount > 0; expandCount--) {
-            int expandRow = getRandNum(SetStart, SetEnd);
+            int expandRow = getRandNum((short )SetStart, (short )SetEnd);
             // If new generated row value is already used, generate again.
             // This can be the bottleneck.
             if (nextLocationSet[expandRow] == currentSet) {
@@ -180,7 +180,7 @@ void Maze::expandSetsVertical(int column) {
     }
 }
 
-void Maze::mergeWithDown(int row, int column) {
+void Maze::mergeWithDown(unsigned short row, unsigned short column) {
     if (column + 1 >= maxColumn){
         return;
     }
@@ -215,9 +215,9 @@ void Maze::assignCellsInRow() {
     }
 }
 
-int Maze::getUnusedSetNumber() {
+unsigned short Maze::getUnusedSetNumber() {
     // The number of sets is cannot over the maximum number of horizontal cells.
-    for (int i = previouslyAssignedSetNumber + 1; i < maxRow + 1; i++){
+    for (unsigned short i = previouslyAssignedSetNumber + 1; i < maxRow + 1; i++){
         // Find unused set number and assign it.
         if (existingSet.find(i) == existingSet.end()){
             previouslyAssignedSetNumber = i;
@@ -228,7 +228,7 @@ int Maze::getUnusedSetNumber() {
     exit(1);
 }
 
-void Maze::mergeWithDifferentSet(int column) {
+void Maze::mergeWithDifferentSet(unsigned short column) {
     for (int row = 0; row < maxRow - 1; ++row) {
         if (locationSet[row] != locationSet[row + 1]) {
             mergeWithRight(row, column);
@@ -257,7 +257,10 @@ void Maze::printMaze() const {
     }
 }
 
-Location *Maze::getAdjacentLoc(int row, int col, char dir) const {
+Location *Maze::getAdjacentLoc(unsigned short row, unsigned short col, char dir) const {
+    if (location[col][row].weight[dir] >= INF){
+        return nullptr;
+    }
     switch (dir) {
         case UP:
             if (col == 0){

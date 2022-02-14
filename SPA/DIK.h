@@ -19,10 +19,10 @@ private:
     Location* start;
 
     Maze &maze;
-    int maxRow, maxCol;
+    unsigned short maxRow, maxCol;
 
     // Distance table that stores shortest distance of all locations and their previous location.
-    std::unique_ptr<std::unique_ptr<int[]>[]> distTable;
+    unsigned short** distTable;
 
     // Set of locations that are found.
     std::vector<Location*> foundLocationSet;
@@ -36,15 +36,16 @@ private:
     void UpdateDist(Location *currentLoc);
 
 public:
-    DIK(int maxRow, int maxCol, Maze &maze);
+    DIK(unsigned short maxRow, unsigned short maxCol, Maze &maze);
+    ~DIK();
 
     void findSP() override;
 
-    void setStart(int row, int column) override{
+    void setStart(unsigned short row, unsigned short column) override{
         start = &(maze.location[column][row]);
     }
 
-    void setEnd(int row, int column) override{
+    void setEnd(unsigned short row, unsigned short column) override{
         end = &(maze.location[column][row]);
     }
 

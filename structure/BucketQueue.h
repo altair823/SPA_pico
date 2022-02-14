@@ -4,7 +4,9 @@
 
 #ifndef SPA_COMPARE_BUCKETQUEUE_H
 #define SPA_COMPARE_BUCKETQUEUE_H
-#include<cstdlib>
+
+#define DEFAULT_CAP 4
+
 template <class Key, class Value>
 class BucketQueue{
 private:
@@ -14,6 +16,7 @@ private:
      */
     Value*** bucketList;
     int* bucketTop;
+    int* bucketCap;
     int bucketListSize;
 
     // Store the index of bucket that has smallest key which is popped before.
@@ -21,19 +24,19 @@ private:
 public:
     BucketQueue(int maxRow, int maxCol, int weightMean);
     ~BucketQueue();
-    void Insert(Key key, Value *value);
+    void Insert(Key key, Value &value);
     Value* PopMinimum();
-    Key getMinimumKey();
-
 };
 
 template<class Key, class Value>
 BucketQueue<Key, Value>::BucketQueue(int maxRow, int maxCol, int weightMean) {
-    bucketList = (Value***)calloc((maxRow+maxCol)*(weightMean*2), sizeof( Value**));
+    bucketList = new Value**[(maxRow+maxCol)*(weightMean*2)];
     bucketTop = new int[(maxRow + maxCol) * (weightMean * 2)];
+    bucketCap = new int[(maxRow + maxCol) * (weightMean * 2)];
     for (int i = 0; i < (maxRow+maxCol)*(weightMean*2); i++){
-        bucketList[i] = nullptr;
+        bucketList[i] = new Value*[DEFAULT_CAP];
         bucketTop[i] = 0;
+        bucketCap[i] = DEFAULT_CAP;
     }
     bucketListSize = (maxRow+maxCol)*(weightMean*2);
 }
@@ -41,54 +44,54 @@ BucketQueue<Key, Value>::BucketQueue(int maxRow, int maxCol, int weightMean) {
 template<class Key, class Value>
 BucketQueue<Key, Value>::~BucketQueue() {
     for (int i = 0; i < bucketListSize; i++){
-        if (bucketTop[i] > 0){
-            free(bucketList[i]);
+        if (bucketCap[i] > 0){
+            delete[] bucketList[i];
         }
     }
-    free(bucketList);
-    delete bucketTop;
+    delete[] bucketList;
+    delete[] bucketTop;
+    delete[] bucketCap;
 }
 
 template<class Key, class Value>
-void BucketQueue<Key, Value>::Insert(Key key, Value *value) {
+void BucketQueue<Key, Value>::Insert(Key key, Value &value) {
     int newIndex = key;
     if (newIndex < minIndex){
         minIndex = newIndex;
     }
-    if (bucketList[newIndex] == nullptr){
-        bucketList[newIndex] = (Value**) malloc((sizeof (Value*))*1);
-        bucketTop[newIndex] = 1;
+
+    if (bucketTop[newIndex] >= bucketCap[newIndex]){
+        if (bucketCap[newIndex] < DEFAULT_CAP){
+            bucketCap[newIndex] = DEFAULT_CAP;
+        } else {
+            bucketCap[newIndex] *= 2;
+        }
+        auto t_bucket = new Value*[bucketCap[newIndex]];
+        for (int i = 0; i < bucketTop[newIndex]; i++){
+            t_bucket[i] = bucketList[newIndex][i];
+        }
+        delete[] bucketList[newIndex];
+        bucketList[newIndex] = t_bucket;
     }
-    else{
-        bucketList[newIndex] = (Value**) realloc(bucketList[newIndex], (sizeof (Value*)) * (++bucketTop[newIndex]));
-    }
-    bucketList[newIndex][bucketTop[newIndex]-1] = value;
+    bucketList[newIndex][bucketTop[newIndex]++] = &value;
 }
 
 template<class Key, class Value>
 Value* BucketQueue<Key, Value>::PopMinimum() {
-    Value* v = bucketList[minIndex][bucketTop[minIndex]-1];
-    if (bucketTop[minIndex] == 1){
-        free(bucketList[minIndex]);
-        bucketList[minIndex] = nullptr;
-        bucketTop[minIndex]--;
-    } else{
-        bucketList[minIndex] = (Value**) realloc(bucketList[minIndex], (sizeof (Value*)) * (--bucketTop[minIndex]));
+    for (int i = minIndex; i < bucketListSize; ++i) {
+        if (bucketTop[i] > 0) {
+            minIndex = i;
+            break;
+        }
+    }
+    Value *v = bucketList[minIndex][bucketTop[minIndex] - 1];
+    bucketTop[minIndex] = bucketTop[minIndex] > 0 ? bucketTop[minIndex] - 1 : 0;
+    if (bucketTop[minIndex] == 0){
+        delete[] bucketList[minIndex];
+        bucketList[minIndex] = new Value*[DEFAULT_CAP];
+        bucketCap[minIndex] = DEFAULT_CAP;
     }
     return v;
 }
-
-
-template<class Key, class Value>
-Key BucketQueue<Key, Value>::getMinimumKey() {
-    for (int i = minIndex; i < bucketListSize; ++i) {
-        if (bucketTop[i] > 0){
-            minIndex = i;
-            return i;
-        }
-    }
-}
-
-
 
 #endif //SPA_COMPARE_BUCKETQUEUE_H

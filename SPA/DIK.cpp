@@ -4,15 +4,22 @@
 
 #include "DIK.h"
 
-DIK::DIK(int maxRow, int maxCol, Maze &maze) : maze(maze), maxRow(maxRow), maxCol(maxCol) {
+DIK::DIK(unsigned short maxRow, unsigned short maxCol, Maze &maze) : maze(maze), maxRow(maxRow), maxCol(maxCol) {
     
-    distTable = std::make_unique<std::unique_ptr<int[]>[]>(maxCol);
+    distTable = new unsigned short* [maxCol];
     for (int column = 0; column < maxCol; column++) {
-        distTable[column] = std::make_unique<int[]>(maxRow);
+        distTable[column] = new unsigned short[maxRow];
         for (int row = 0; row < maxRow; row++) {
             distTable[column][row] = INF;
         }
     }
+}
+
+DIK::~DIK() {
+    for (int i = 0; i < maxCol; i++){
+        delete[] distTable[i];
+    }
+    delete[] distTable;
 }
 
 void DIK::findSP() {
@@ -79,6 +86,5 @@ void DIK::printLocationDistSet() const {
         std::cout<<std::endl;
     }
 }
-
 
 

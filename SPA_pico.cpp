@@ -22,13 +22,15 @@ int main() {
     uint64_t  pathFindStartTime;
     uint64_t  pathFindEndTime;
 
-    int maxRow = 70;
-    int maxCol = 70;
+    int maxRow = 90;
+    int maxCol = 90;
     long counter = 0;
-    sleep_ms(5000);
+    sleep_ms(4000);
     while (true) {
         counter++;
 
+        std::cout<<std::fixed;
+        std::cout.precision(6);
         std::cout<<"\nCount: " << counter<<std::endl;
 
         gpio_put(LED_PIN, true);
@@ -40,22 +42,23 @@ int main() {
         std::cout<<"Created a new maze in            " << (float )(mazeMakeEndTime - mazeMakeStartTime) / ABSOLUTE_TIME_BASE << " sec."<<std::endl;
 
         gpio_put(LED_PIN, false);
-        sleep_ms(500);
+        sleep_ms(100);
         gpio_put(LED_PIN, true);
 
-//        pathFindStartTime = get_absolute_time()._private_us_since_boot;
-//        ASBQ* asbq = new ASBQ(maxRow, maxCol, *maze);
-//        asbq->setStart(0, maxCol - 1);
-//        asbq->setEnd(maxRow - 1, 0);
-//        asbq->findSP();
-//        pathFindEndTime = get_absolute_time()._private_us_since_boot;
-//        std::cout<<"Shortest path found by "<<asbq->getTypeName()<<" in " << (float )(pathFindEndTime - pathFindStartTime) / ABSOLUTE_TIME_BASE << " sec. "<<std::endl;
-//
-//        gpio_put(LED_PIN, false);
-//        sleep_ms(500);
-//        gpio_put(LED_PIN, true);
-//
-//        delete asbq;
+        pathFindStartTime = get_absolute_time()._private_us_since_boot;
+        ASBQ* asbq = new ASBQ(maxRow, maxCol, *maze);
+        asbq->setStart(0, maxCol - 1);
+        asbq->setEnd(maxRow - 1, 0);
+        asbq->findSP();
+        pathFindEndTime = get_absolute_time()._private_us_since_boot;
+        std::cout<<"Shortest path found by "<<asbq->getTypeName()<<" in " << (float )(pathFindEndTime - pathFindStartTime) / ABSOLUTE_TIME_BASE <<
+        " sec. Length: "<<asbq->getShortestPathLength()<<std::endl;
+
+        gpio_put(LED_PIN, false);
+        sleep_ms(100);
+        gpio_put(LED_PIN, true);
+
+        delete asbq;
 
         pathFindStartTime = get_absolute_time()._private_us_since_boot;
         ASPQ* aspq = new ASPQ(maxRow, maxCol, *maze);
@@ -64,10 +67,11 @@ int main() {
         aspq->findSP();
         pathFindEndTime = get_absolute_time()._private_us_since_boot;
         //aspq->printShortestPath();
-        std::cout<<"Shortest path found by "<<aspq->getTypeName()<<" in " << (float )(pathFindEndTime - pathFindStartTime) / ABSOLUTE_TIME_BASE << " sec. "<<std::endl;
+        std::cout<<"Shortest path found by "<<aspq->getTypeName()<<" in " << (float )(pathFindEndTime - pathFindStartTime) / ABSOLUTE_TIME_BASE <<
+        " sec. Length: "<<aspq->getShortestPathLength()<<std::endl;
 
         gpio_put(LED_PIN, false);
-        sleep_ms(500);
+        sleep_ms(100);
         gpio_put(LED_PIN, true);
 
         delete aspq;
@@ -78,13 +82,14 @@ int main() {
         dik->setEnd(maxRow - 1, 0);
         dik->findSP();
         pathFindEndTime = get_absolute_time()._private_us_since_boot;
-        std::cout<<"Shortest path found by "<<dik->getTypeName()<<" in " << (float )(pathFindEndTime - pathFindStartTime) / ABSOLUTE_TIME_BASE << " sec. "<<std::endl;
+        std::cout<<"Shortest path found by "<<dik->getTypeName()<<" in " << (float )(pathFindEndTime - pathFindStartTime) / ABSOLUTE_TIME_BASE <<
+        " sec. Length: "<<dik->getShortestPathLength()<<std::endl;
 
         gpio_put(LED_PIN, false);
 
         delete dik;
 
         delete maze;
-        sleep_ms(1000);
+        sleep_ms(100);
     }
 }
