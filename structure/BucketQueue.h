@@ -15,8 +15,8 @@ private:
      * is the Manhattan distance of the edge with maximum weight.
      */
     Value*** bucketList;
-    int* bucketTop;
-    int* bucketCap;
+    unsigned char* bucketTop;
+    unsigned char* bucketCap;
     int bucketListSize;
 
     // Store the index of bucket that has smallest key which is popped before.
@@ -31,8 +31,8 @@ public:
 template<class Key, class Value>
 BucketQueue<Key, Value>::BucketQueue(int maxRow, int maxCol, int weightMean) {
     bucketList = new Value**[(maxRow+maxCol)*(weightMean*2)];
-    bucketTop = new int[(maxRow + maxCol) * (weightMean * 2)];
-    bucketCap = new int[(maxRow + maxCol) * (weightMean * 2)];
+    bucketTop = new unsigned char[(maxRow + maxCol) * (weightMean * 2)];
+    bucketCap = new unsigned char[(maxRow + maxCol) * (weightMean * 2)];
     for (int i = 0; i < (maxRow+maxCol)*(weightMean*2); i++){
         bucketList[i] = new Value*[DEFAULT_CAP];
         bucketTop[i] = 0;
