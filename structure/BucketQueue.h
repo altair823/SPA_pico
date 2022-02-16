@@ -7,16 +7,12 @@
 
 #define DEFAULT_CAP 4
 
-template <class Key, class Value>
+template <class Key, class Value, typename T>
 class BucketQueue{
 private:
-    /*
-     * Theoretically, the maximum distance from the starting point to the location
-     * is the Manhattan distance of the edge with maximum weight.
-     */
     Value*** bucketList;
-    unsigned char* bucketTop;
-    unsigned char* bucketCap;
+    T* bucketTop;
+    T* bucketCap;
     int bucketListSize;
 
     // Store the index of bucket that has the smallest key which is popped before.
@@ -28,11 +24,11 @@ public:
     Value* PopMinimum();
 };
 
-template<class Key, class Value>
-BucketQueue<Key, Value>::BucketQueue(int maxRow, int maxCol, int weightMean) {
+template<class Key, class Value, typename T>
+BucketQueue<Key, Value, T>::BucketQueue(int maxRow, int maxCol, int weightMean) {
     bucketList = new Value**[(maxRow+maxCol)*(weightMean*2)];
-    bucketTop = new unsigned char[(maxRow + maxCol) * (weightMean * 2)];
-    bucketCap = new unsigned char[(maxRow + maxCol) * (weightMean * 2)];
+    bucketTop = new T[(maxRow + maxCol) * (weightMean * 2)];
+    bucketCap = new T[(maxRow + maxCol) * (weightMean * 2)];
     for (int i = 0; i < (maxRow+maxCol)*(weightMean*2); i++){
         bucketList[i] = new Value*[DEFAULT_CAP];
         bucketTop[i] = 0;
@@ -41,8 +37,8 @@ BucketQueue<Key, Value>::BucketQueue(int maxRow, int maxCol, int weightMean) {
     bucketListSize = (maxRow+maxCol)*(weightMean*2);
 }
 
-template<class Key, class Value>
-BucketQueue<Key, Value>::~BucketQueue() {
+template<class Key, class Value, typename T>
+BucketQueue<Key, Value, T>::~BucketQueue() {
     for (int i = 0; i < bucketListSize; i++){
         if (bucketCap[i] > 0){
             delete[] bucketList[i];
@@ -53,8 +49,8 @@ BucketQueue<Key, Value>::~BucketQueue() {
     delete[] bucketCap;
 }
 
-template<class Key, class Value>
-void BucketQueue<Key, Value>::Insert(Key key, Value &value) {
+template<class Key, class Value, typename T>
+void BucketQueue<Key, Value, T>::Insert(Key key, Value &value) {
     int newIndex = key;
     if (newIndex < minIndex){
         minIndex = newIndex;
@@ -76,8 +72,8 @@ void BucketQueue<Key, Value>::Insert(Key key, Value &value) {
     bucketList[newIndex][bucketTop[newIndex]++] = &value;
 }
 
-template<class Key, class Value>
-Value* BucketQueue<Key, Value>::PopMinimum() {
+template<class Key, class Value, typename T>
+Value* BucketQueue<Key, Value, T>::PopMinimum() {
     for (int i = minIndex; i < bucketListSize; ++i) {
         if (bucketTop[i] > 0) {
             minIndex = i;

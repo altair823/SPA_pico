@@ -8,10 +8,11 @@
 #include "SPA/ASBQ.h"
 
 #define ABSOLUTE_TIME_BASE 1000000
+#define INTERVAL 50
 #define LED_ON      gpio_put(LED_PIN, true)
 #define LED_OFF     gpio_put(LED_PIN, false)
 #define LED_BLINK   gpio_put(LED_PIN, false); \
-                    sleep_ms(100); \
+                    sleep_ms(INTERVAL); \
                     gpio_put(LED_PIN, true)
 
 int main() {
@@ -25,8 +26,8 @@ int main() {
     uint64_t  pathFindStartTime;
     uint64_t  pathFindEndTime;
 
-    unsigned char maxRow = 110;
-    unsigned char maxCol = 110;
+    unsigned char maxRow = 125;
+    unsigned char maxCol = 125;
     long counter = 0;
     sleep_ms(3000);
     while (true) {
@@ -39,9 +40,9 @@ int main() {
         LED_ON;
         uint64_t  mazeMakeStartTime = get_absolute_time()._private_us_since_boot;
         auto maze = new Maze<unsigned char, unsigned short>(maxRow, maxCol);
-        maze->makeMaze();
+        maze->make();
         uint64_t  mazeMakeEndTime = get_absolute_time()._private_us_since_boot;
-        //maze->printMaze();
+        //maze->print();
         std::cout<<"Created a new maze             in " << (float )(mazeMakeEndTime - mazeMakeStartTime) / ABSOLUTE_TIME_BASE << " sec. size: "<<
         static_cast<unsigned>(maze->maxRow)<<"x"<<static_cast<unsigned>(maze->maxColumn)<<std::endl;
 
@@ -89,6 +90,6 @@ int main() {
 
         delete maze;
         LED_OFF;
-        sleep_ms(100);
+        sleep_ms(INTERVAL);
     }
 }

@@ -5,9 +5,6 @@
 #ifndef SPA_PICO_SPA_H
 #define SPA_PICO_SPA_H
 
-
-#include "../Maze.h"
-
 template <typename T, typename W>
 class SPA {
 
