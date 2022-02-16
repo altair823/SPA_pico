@@ -25,8 +25,8 @@ int main() {
     uint64_t  pathFindStartTime;
     uint64_t  pathFindEndTime;
 
-    unsigned char maxRow = 119;
-    unsigned char maxCol = 119;
+    unsigned char maxRow = 110;
+    unsigned char maxCol = 110;
     long counter = 0;
     sleep_ms(3000);
     while (true) {

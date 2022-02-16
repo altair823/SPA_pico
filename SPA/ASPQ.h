@@ -6,6 +6,7 @@
 #define SPA_PICO_ASPQ_H
 
 #include <queue>
+#include "../structure/PriorityQueue.h"
 #include <cstdlib>
 #include "../Maze.h"
 #include "SPA.h"
@@ -27,7 +28,7 @@ private:
     // Priority Queue of adjacent locations to found set.
     // The int values indicate distance between current location and adjacent location +
     // estimated distance between adjacent location and destination.
-    std::priority_queue<std::pair<W, Location<T, W> *>> adjacentLocQueue;
+    PriorityQueue<W, Location<T, W>> adjacentLocQueue;
 
     // Update distance of new adjacent location only.
     void UpdateDist(Location<T, W> *currentLoc) {
@@ -42,10 +43,10 @@ private:
 
                 // Enqueue the new adjacent location which is updated just before.
                 adjacentLocQueue.push(
-                        {-(distTable[adjacent->col][adjacent->row] +
+                        -(distTable[adjacent->col][adjacent->row] +
                            (ABS_MIN_WEIGHT(end, adjacent)) +
                            (ABS_MIN_WEIGHT(end, adjacent))),
-                         adjacent});
+                         *adjacent);
             }
         }
     }
@@ -81,10 +82,10 @@ public:
         distTable[start->col][start->row] = 0;
 
         // Initially push the starting point to PQ.
-        adjacentLocQueue.push({-(distTable[start->col][start->row] +
+        adjacentLocQueue.push(-(distTable[start->col][start->row] +
                                  (ABS_MIN_WEIGHT(end, start)) +
                                  (ABS_MIN_WEIGHT(end, start))),
-                               start});
+                               *start);
 
         Location<T, W> *currentLoc = nullptr;
 
@@ -92,7 +93,7 @@ public:
 
             // Dequeue the closest location.
             // The distance of location from the starting point is used for only sorting.
-            currentLoc = adjacentLocQueue.top().second;
+            currentLoc = adjacentLocQueue.top();
             adjacentLocQueue.pop();
 
             // Update distance table for adjacent locations.

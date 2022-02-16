@@ -2,8 +2,8 @@
 // Created by 김태현 on 2021/07/27.
 //
 
-#ifndef SPA_COMPARE_BUCKETQUEUE_H
-#define SPA_COMPARE_BUCKETQUEUE_H
+#ifndef SPA_COMPARE_BUCKET_QUEUE_H
+#define SPA_COMPARE_BUCKET_QUEUE_H
 
 #define DEFAULT_CAP 4
 
@@ -19,7 +19,7 @@ private:
     unsigned char* bucketCap;
     int bucketListSize;
 
-    // Store the index of bucket that has smallest key which is popped before.
+    // Store the index of bucket that has the smallest key which is popped before.
     int minIndex = 0;
 public:
     BucketQueue(int maxRow, int maxCol, int weightMean);
@@ -94,4 +94,4 @@ Value* BucketQueue<Key, Value>::PopMinimum() {
     return v;
 }
 
-#endif //SPA_COMPARE_BUCKETQUEUE_H
+#endif //SPA_COMPARE_BUCKET_QUEUE_H

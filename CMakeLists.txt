@@ -21,7 +21,7 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(SPA_pico SPA_pico.cpp Maze.h Counter.h SPA/ASPQ.h SPA/DIK.h SPA/ASBQ.h structure/BucketQueue.h SPA/SPA.h)
+add_executable(SPA_pico SPA_pico.cpp Maze.h Counter.h SPA/ASPQ.h SPA/DIK.h SPA/ASBQ.h structure/BucketQueue.h SPA/SPA.h structure/PriorityQueue.h)
 
 pico_set_program_name(SPA_pico "SPA_pico")
 pico_set_program_version(SPA_pico "0.1")
