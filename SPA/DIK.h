@@ -40,7 +40,7 @@ private:
             // if the adjacent currentLoc is not in the found currentLoc set,
             // calculate minimum distance and update if it is needed.
             // The edge vertices of maze are have nullptr for limits of maze size.
-            Location<T, W> *adLoc = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
+            auto adLoc = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
             if (adLoc != nullptr && foundLocationSet[adLoc->col][adLoc->row] == false) {
                 if (std::find(adjacentSet.begin(), adjacentSet.end(), adLoc) == adjacentSet.end()) {
                     adjacentSet.push_back(adLoc);
@@ -83,7 +83,7 @@ public:
 
         distTable[start->col][start->row] = 0;
 
-        Location<T, W> *currentLoc = start;
+        auto currentLoc = start;
         int closestIndex = 0;
 
         // Finding the shortest path.

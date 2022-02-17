@@ -10,10 +10,10 @@
 #define SPA_PICO_PRIORITY_QUEUE_H
 
 /**
- * @def DEFAULT_QUEUE_CAP
- * Initial default capacity of data array in the queue.
+ * @def DEFAULT_P_QUEUE_CAP
+ * The initial default capacity of data array in the queue.
  */
-#define DEFAULT_QUEUE_CAP 3
+#define DEFAULT_P_QUEUE_CAP 3
 
 /**
  * @def SET_DATA(key, value, index)
@@ -42,18 +42,34 @@
 template <typename Key, typename Value>
 class PriorityQueue{
 private:
+
+    /**
+     * Data array that contains key of data.
+     */
     Key* keyData;
+
+    /**
+     * Data array that contains value of data.
+     */
     Value* valueData;
+
+    /**
+     * The size of arrays in the queue.
+     */
     int capacity;
+
+    /**
+     * Indicates the index of the data at the end of the array.
+     */
     int back;
 public:
     /**
-     * Create a new priority queue.
+     * Constructor a new priority queue.
      */
     PriorityQueue();
 
     /**
-     * Destruct a existing priority queue.
+     * Destructor a existing priority queue.
      */
     ~PriorityQueue();
 
@@ -71,16 +87,16 @@ public:
 
     /**
      * Return the value of data at the top.
-     * @return Value of data at the top.
+     * @return The value of data at the top.
      */
     Value top();
 };
 
 template<typename Key, typename Value>
 PriorityQueue<Key, Value>::PriorityQueue():
-keyData(new Key[DEFAULT_QUEUE_CAP]),
-valueData(new Value[DEFAULT_QUEUE_CAP]),
-capacity(DEFAULT_QUEUE_CAP),
+keyData(new Key[DEFAULT_P_QUEUE_CAP]),
+valueData(new Value[DEFAULT_P_QUEUE_CAP]),
+capacity(DEFAULT_P_QUEUE_CAP),
 back(0) {}
 
 template<typename Key, typename Value>
@@ -91,6 +107,7 @@ PriorityQueue<Key, Value>::~PriorityQueue() {
 
 template<typename Key, typename Value>
 void PriorityQueue<Key, Value>::push(Key key, Value &value) {
+    /* When the data array in the queue full, double the capacity of both arrays. */
     if (capacity == back) {
         capacity *= 2;
 
@@ -106,16 +123,18 @@ void PriorityQueue<Key, Value>::push(Key key, Value &value) {
         valueData = tempValueData;
     }
 
+    /* Appends new data to the end of the array. */
     SET_DATA(key, value, back);
     int parent = (back - 1) / 2;
     int child = back;
+
+    /* Heapify all nodes. */
     while (parent >= 0 && keyData[parent] < keyData[child]) {
         SWAP(parent, child);
         child = parent;
         parent = (child - 1) / 2;
     }
     back++;
-
 }
 
 template<typename Key, typename Value>
@@ -127,9 +146,12 @@ void PriorityQueue<Key, Value>::pop() {
         int parent = 0;
         int child = parent * 2 + 1;
         bool placed = false;
+
+        /* Heapify all nodes. */
         while (!placed && child < back) {
             if (child < back - 1 && keyData[child] < keyData[child + 1])
                 child += 1;
+            /* Heapify complete. */
             if (keyData[parent] >= keyData[child])
                 placed = true;
             else {

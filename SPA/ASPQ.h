@@ -46,7 +46,7 @@ public:
 template<typename T, typename W>
 void ASPQ<T, W>::UpdateDist(Location<T, W> *currentLoc) {
     for (char dir = 0; dir < 4; ++dir) {
-        Location<T, W> *adjacent = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
+        auto adjacent = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
         if (adjacent != nullptr &&
             distTable[adjacent->col][adjacent->row] >
             currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row]) {
