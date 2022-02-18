@@ -13,14 +13,17 @@
 #include "hardware/structs/rosc.h"
 
 /**
- * @def INF Pseudo-infinite value of the weight.
+ * @def INF
+ * Pseudo-infinite value of the weight.
  * This might be used to representing the closed wall.
  */
 /**
- * @def WEIGHT_MAX The maximum value of the weight.
+ * @def WEIGHT_MAX
+ * The maximum value of the weight.
  */
 /**
- * @def WEIGHT_MIN The minimum value of the weight.
+ * @def WEIGHT_MIN
+ * The minimum value of the weight.
  */
 
 /*
