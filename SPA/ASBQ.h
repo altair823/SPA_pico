@@ -3,7 +3,7 @@
  * @date 2022/02/17
  * @author altair823
  * @version 1.0
- * @brief Implementation of A* algorithm using bucket queue.
+ * @brief Implementation of A* algorithm using a bucket queue.
  */
 
 #ifndef SPA_PICO_ASBQ_H
@@ -14,7 +14,7 @@
 #include "SPA.h"
 
 /**
- * A* algorithm class that finds the shortest path of given maze.
+ * A* algorithm implementation class that finds the shortest path of given maze using a bucket queue.
  * The data types are essential for optimizing the space complexity.
  * @tparam T The data type of row and column of maze.
  * @tparam W The data type of the maze's weights.
@@ -22,21 +22,6 @@
 template <typename T, typename W>
 class ASBQ : public SPA<T, W> {
 private:
-
-    /**
-     * The maze reference variable.
-     */
-    Maze<T, W> &maze;
-
-    /**
-     * The starting point for the shortest path of maze.
-     */
-    Location<T, W> *end;
-
-    /**
-     * The destination point for the shortest path of maze.
-     */
-    Location<T, W> *start;
 
     /**
      * The Max size of the row and the column in maze.
@@ -49,11 +34,11 @@ private:
     W** distTable;
 
     /**
-     * The priority Queue for storing given distance of adjacent location and to get the nearest location.
+     * The bucket queue for storing given distance of adjacent location and to get the nearest location.
      * The key represents the sum of the distance from the current location to the adjacent location
      * and the estimated distance from the adjacent location to the destination.
      */
-    BucketQueue<W, Location<T, W>*> adjacentLocQueue;
+    BucketQueue<W, Location<T, W>*> bucketQueue;
 
     /**
      * Updates distances of all adjacent locations from the current location.
@@ -62,29 +47,37 @@ private:
     void UpdateDist(Location<T, W> *currentLoc);
 
 public:
+    /**
+     * Constructor for A* algorithm class with bucket queue.
+     * @param maxRow Max row size of the given maze.
+     * @param maxCol Max column size of the given maze.
+     * @param maze The reference variable for the maze.
+     */
     ASBQ(T maxRow, T maxCol, Maze<T, W> &maze);
+
+    /**
+     * Destructor for A* algorithm class with bucket queue.
+     */
     ~ASBQ();
-    void setStart(T row, T column) override {start = &(maze.location[column][row]);}
-    void setEnd(T row, T column) override {end = &(maze.location[column][row]);}
+
     void findSP() override;
-    W getShortestPathLength() const override {return distTable[end->col][end->row];}
-    std::string getTypeName() const override {return "ASBQ  ";}
-    void printLocationDistSet() const;
+    W getShortestPathLength() const override {return distTable[this->end->col][this->end->row];}
+    [[nodiscard]] std::string getTypeName() const override {return "ASBQ  ";}
 };
 
 template<typename T, typename W>
-ASBQ<T, W>::ASBQ(T maxRow, T maxCol, Maze<T, W> &maze) :
-            maze(maze),
-            maxRow(maxRow),
-            maxCol(maxCol){
-        distTable = new W*[maxCol];
-        for (T column = 0; column < maxCol; column++) {
-            distTable[column] = new W[maxRow];
-            for (T row = 0; row < maxRow; row++) {
-                distTable[column][row] = INF;
-            }
+ASBQ<T, W>::ASBQ(T _maxRow, T _maxCol, Maze<T, W> &_maze) :
+            maxRow(_maxRow),
+            maxCol(_maxCol),
+            SPA<T, W>(_maze) {
+    distTable = new W *[maxCol];
+    for (T column = 0; column < maxCol; column++) {
+        distTable[column] = new W[maxRow];
+        for (T row = 0; row < maxRow; row++) {
+            distTable[column][row] = INF;
         }
     }
+}
 
 template<typename T, typename W>
 ASBQ<T, W>::~ASBQ() {
@@ -96,18 +89,18 @@ ASBQ<T, W>::~ASBQ() {
 
 template<typename T, typename W>
 void ASBQ<T, W>::findSP() {
-    distTable[start->col][start->row] = 0;
+    distTable[this->start->col][this->start->row] = 0;
     // Initially push the starting point to PQ.
-    adjacentLocQueue.push((W) (distTable[start->col][start->row] +
-                                (ABS_MIN_WEIGHT(end, start)) +
-                                (ABS_MIN_WEIGHT(end, start))),
-                           start);
-    auto currentLoc = start;
-    while (currentLoc->row != end->row || currentLoc->col != end->col) {
+    bucketQueue.push((W) (distTable[this->start->col][this->start->row] +
+                          (ABS_MIN_WEIGHT(this->end, this->start)) +
+                          (ABS_MIN_WEIGHT(this->end, this->start))),
+                     this->start);
+    auto currentLoc = this->start;
+    while (currentLoc->row != this->end->row || currentLoc->col != this->end->col) {
         // Dequeue the closest location.
         // The distance of location from the starting point is used for only sorting.
-        currentLoc = adjacentLocQueue.top();
-        adjacentLocQueue.pop();
+        currentLoc = bucketQueue.top();
+        bucketQueue.pop();
         // Update distance table for adjacent locations.
         UpdateDist(currentLoc);
     }
@@ -116,7 +109,7 @@ void ASBQ<T, W>::findSP() {
 template<typename T, typename W>
 void ASBQ<T, W>::UpdateDist(Location<T, W> *currentLoc) {
     for (char dir = 0; dir < 4; ++dir) {
-        auto adjacent = maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
+        auto adjacent = this->maze.getAdjacentLoc(currentLoc->row, currentLoc->col, dir);
         // If there is adjacent location exists,
         // and its new distance is shorter then distance in the table, update it.
         if (adjacent != nullptr &&
@@ -127,29 +120,14 @@ void ASBQ<T, W>::UpdateDist(Location<T, W> *currentLoc) {
                     (W) (currentLoc->weight[dir] + distTable[currentLoc->col][currentLoc->row]);
 
             // Enqueue the new adjacent location which is updated just before.
-            adjacentLocQueue.push(
+            bucketQueue.push(
                     (W) (distTable[adjacent->col][adjacent->row] +
-                         (ABS_MIN_WEIGHT(end, adjacent)) +
-                         (ABS_MIN_WEIGHT(end, adjacent))),
+                         (ABS_MIN_WEIGHT(this->end, adjacent)) +
+                         (ABS_MIN_WEIGHT(this->end, adjacent))),
                     adjacent);
 
         }
     }
 }
-
-template<typename T, typename W>
-void ASBQ<T, W>::printLocationDistSet() const {
-    for (T col = 0; col < maxCol; col++) {
-        for (T row = 0; row < maxRow; row++) {
-            if (distTable[col][row] != INF) {
-                std::cout << "0 ";
-            } else {
-                std::cout << "- ";
-            }
-        }
-        std::cout << std::endl;
-    }
-}
-
 
 #endif //SPA_PICO_ASBQ_H

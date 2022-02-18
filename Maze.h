@@ -1,6 +1,10 @@
-//
-// Created by 김태현 on 2022/02/12.
-//
+/**
+ * @file Maze.h
+ * @date 2022/02/17
+ * @author altair823
+ * @version 1.0
+ * @brief Maze implementation file.
+ */
 
 #ifndef SPA_PICO_MAZE_H
 #define SPA_PICO_MAZE_H
@@ -8,28 +12,96 @@
 #include "pico/stdlib.h"
 #include "hardware/structs/rosc.h"
 
+/**
+ * @def INF Pseudo-infinite value of the weight.
+ * This might be used to representing the closed wall.
+ */
+/**
+ * @def WEIGHT_MAX The maximum value of the weight.
+ */
+/**
+ * @def WEIGHT_MIN The minimum value of the weight.
+ */
+
+/*
+ * Directions for adjacent locations.
+ */
 #define UP 3
 #define DOWN 2
 #define LEFT 1
 #define RIGHT 0
 
-#define INF 10000  // Maximum weight of edges.
+
+#define INF 10000
 #define WEIGHT_MAX 5
 #define WEIGHT_MIN 1
 
+/**
+ * Calculate the absolute value of the distance between from x to y.
+ */
 #define ABS_MIN_WEIGHT(x, y) ((x->row - y->row) > 0 ? ((x->row - y->row) * WEIGHT_MIN) : -((x->row - y->row) * WEIGHT_MIN))
+
+/**
+ * Generates a random number with a range between from and to.
+ */
 #define GET_RAND_NUM(from, to) ((T) rand() % (to + 1 - from) + from)
 
+/**
+ * Location class that makes up the maze.
+ * @tparam T The data type of row and column value of the maze.
+ * @tparam W The data type of the weights between adjacent locations.
+ */
 template <typename T, typename W>
 struct Location{
     T row;
     T col;
-    W weight[4];  // Edges to 4 adjacent cells.
+    W weight[4];
 };
 
+/**
+ * A class that implements a maze with the location class.
+ * Using the Eller's algorithm to create a maze.
+ * @tparam T The data type of row and column value of the maze.
+ * @tparam W The data type of the weights between adjacent locations.
+ */
 template <typename T, typename W>
 struct Maze {
 public:
+
+    /**
+     * Constructor for the Maze class.
+     * @param maxRow Row size of the new maze.
+     * @param maxCol Column size of the new maze.
+     */
+    Maze(T maxRow, T maxCol);
+
+    /**
+     * Destructor for the Maze class.
+     */
+    ~Maze();
+
+    /**
+     * Build the maze by opening some percentages of the walls in the maze by using the Eller's algorithm.
+     * For more information about the Eller's algorithm, visit <a href="https://altair823.tistory.com/entry/%EB%AF%B8%EB%A1%9C-%EC%83%9D%EC%84%B1-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98">altair823's blog</a>
+     * and <a href="http://weblog.jamisbuck.org/2010/12/29/maze-generation-eller-s-algorithm">The Buckblog</a>.
+     */
+    void make();
+
+    /**
+     * Print wall data of all locations in maze.
+     */
+    void print() const;
+
+    /**
+     * Getter for adjacent location from current location and given direction.
+     * @param row Row value of the current location.
+     * @param col Column value of the current location.
+     * @param dir Direction for the wanted adjacent location.
+     * @return The adjacent location pointer.
+     */
+    Location<T, W> *getAdjacentLoc(T row, T col, char dir) const;
+
+private:
     T maxRow;
     T maxColumn;
     Location<T, W> **location;
@@ -37,14 +109,6 @@ public:
     T *nextLocationSet;
     T previouslyAssignedSetNumber;
     bool* existSetNumList;
-
-    Maze(T maxRow, T maxCol);
-    ~Maze();
-    void make();
-    void print() const;
-    Location<T, W> *getAdjacentLoc(T row, T col, char dir) const;
-
-private:
     void openWall(T row, T column, char direction, W weight);
     void mergeWithRight(T row, T column);
     W generateWeight();
