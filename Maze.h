@@ -101,10 +101,10 @@ public:
      */
     Location<T, W> *getAdjacentLoc(T row, T col, char dir) const;
 
-private:
     T maxRow;
     T maxColumn;
     Location<T, W> **location;
+private:
     T *locationSet;
     T *nextLocationSet;
     T previouslyAssignedSetNumber;
