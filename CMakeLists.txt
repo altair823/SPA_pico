@@ -26,8 +26,8 @@ add_executable(SPA_pico SPA_pico.cpp Maze.h SPA/ASPQ.h SPA/DIK.h SPA/ASBQ.h stru
 pico_set_program_name(SPA_pico "SPA_pico")
 pico_set_program_version(SPA_pico "0.1")
 
-pico_enable_stdio_uart(SPA_pico 0)
-pico_enable_stdio_usb(SPA_pico 1)
+pico_enable_stdio_usb(${PROJECT_NAME} 1)
+pico_enable_stdio_uart(${PROJECT_NAME} 0)
 
 # Add the standard library to the build
 target_link_libraries(SPA_pico pico_stdlib)
@@ -38,6 +38,7 @@ target_link_libraries(SPA_pico
         hardware_pio
         hardware_timer
         pico_time
+        hardware_i2c
         )
 
 pico_add_extra_outputs(SPA_pico)

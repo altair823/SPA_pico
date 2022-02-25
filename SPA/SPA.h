@@ -35,6 +35,8 @@ public:
      */
     explicit SPA(Maze<T, W> &_maze) : maze(_maze){}
 
+    virtual ~SPA(){};
+
     /**
      * Setter for the starting point of the maze.
      * @param row A row value of the starting point.
