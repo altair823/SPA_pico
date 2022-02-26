@@ -62,7 +62,7 @@ public:
 
     void findSP() override;
     W getShortestPathLength() const override {return distTable[this->end->col][this->end->row];}
-    [[nodiscard]] std::string getTypeName() const override {return "ASBQ  ";}
+    [[nodiscard]] std::string getTypeName() const override {return "ASBQ";}
 };
 
 template<typename T, typename W>
